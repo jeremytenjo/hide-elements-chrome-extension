@@ -45,10 +45,18 @@ function renderSelectors(selectors, domain) {
     item.innerHTML = `
       <span>${selector}</span>
       <div class="selector-actions">
-        <button class="btn-delete" onclick="deleteSelector('${domain}', ${index})">Delete</button>
+        <button class="btn-delete" data-index="${index}">Delete</button>
       </div>
     `;
     selectorsList.appendChild(item);
+  });
+
+  // Add event delegation for delete buttons
+  document.querySelectorAll('.btn-delete').forEach((btn) => {
+    btn.addEventListener('click', function () {
+      const index = parseInt(this.getAttribute('data-index'));
+      deleteSelector(domain, index);
+    });
   });
 }
 
