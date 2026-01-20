@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="UTF-8" />
@@ -11,8 +11,9 @@
 
       body {
         width: 450px;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-          Oxygen, Ubuntu, Cantarell, sans-serif;
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+          Cantarell, sans-serif;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: #333;
       }
@@ -193,6 +194,93 @@
         padding: 10px 15px;
         margin-bottom: 10px;
       }
+
+      .tab-buttons {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 15px;
+      }
+
+      .tab-btn {
+        flex: 1;
+        padding: 10px;
+        background: #f0f0f0;
+        color: #666;
+        border: 2px solid transparent;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .tab-btn.active {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+      }
+
+      .tab-btn:hover {
+        background: #e0e0e0;
+      }
+
+      .tab-btn.active:hover {
+        background: #5568d3;
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      .js-textarea {
+        width: 100%;
+        min-height: 120px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 12px;
+        font-family: 'Monaco', 'Courier New', monospace;
+        resize: vertical;
+      }
+
+      .js-textarea:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      .script-item {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+        font-size: 11px;
+        font-family: 'Monaco', 'Courier New', monospace;
+        word-break: break-all;
+        gap: 10px;
+      }
+
+      .script-item:last-child {
+        border-bottom: none;
+      }
+
+      .script-item:hover {
+        background: #f0f0f0;
+      }
+
+      .script-preview {
+        flex: 1;
+        color: #666;
+        max-height: 60px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: pre-wrap;
+      }
     </style>
   </head>
   <body>
@@ -203,35 +291,85 @@
       <div class="stats">
         <div class="stat-box">
           <div class="stat-number" id="count">0</div>
-          <div class="stat-label">Hidden Rules</div>
+          <div class="stat-label">CSS Rules</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number" id="jsCount">0</div>
+          <div class="stat-label">Scripts</div>
         </div>
       </div>
 
       <div class="section">
-        <div class="section-title">Add CSS Selector</div>
-        <div class="input-group">
-          <input
-            type="text"
-            id="selectorInput"
-            placeholder="e.g., .ad, #banner, div.popup"
-            autofocus
-          />
-          <button class="btn-primary" id="addBtn">Add</button>
-        </div>
-        <div class="help-text">
-          💡 Use CSS selectors to target elements. Examples:
-          <code>.classname</code>, <code>#id</code>, <code>div.ads</code>
+        <div class="section-title">Tabs</div>
+        <div class="tab-buttons">
+          <button class="tab-btn active" data-tab="css">CSS Hiding</button>
+          <button class="tab-btn" data-tab="javascript">JavaScript</button>
         </div>
       </div>
 
-      <div class="section">
-        <div class="section-title">Active Selectors</div>
-        <div class="selectors-list" id="selectorsList"></div>
+      <div id="css-tab" class="tab-content active">
+        <div class="section">
+          <div class="section-title">Add CSS Selector</div>
+          <div class="input-group">
+            <input
+              type="text"
+              id="selectorInput"
+              placeholder="e.g., .ad, #banner, div.popup"
+              autofocus
+            />
+            <button class="btn-primary" id="addBtn">Add</button>
+          </div>
+          <div class="help-text">
+            💡 Use CSS selectors to target elements. Examples:
+            <code>.classname</code>, <code>#id</code>, <code>div.ads</code>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Active Selectors</div>
+          <div class="selectors-list" id="selectorsList"></div>
+        </div>
+      </div>
+
+      <div id="javascript-tab" class="tab-content">
+        <div class="section">
+          <div class="section-title">Add JavaScript Code</div>
+          <div class="input-group">
+            <textarea
+              id="jsCodeInput"
+              placeholder="e.g., console.log('Hello'); or document.body.style.backgroundColor = 'red';"
+              class="js-textarea"
+            ></textarea>
+          </div>
+          <button
+            class="btn-primary"
+            id="addJsBtn"
+            style="width: 100%; margin-top: 8px"
+          >
+            Add Script
+          </button>
+          <div class="help-text">
+            💡 Enter valid JavaScript code that will execute on this website.
+            Have access to all DOM APIs.
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Active Scripts</div>
+          <div class="selectors-list" id="scriptsList"></div>
+        </div>
       </div>
 
       <div class="section section-small">
         <button class="btn-secondary" id="clearAllBtn" style="width: 100%">
-          Clear All Hidden Elements
+          Clear All CSS Rules
+        </button>
+        <button
+          class="btn-secondary"
+          id="clearJsBtn"
+          style="width: 100%; margin-top: 8px"
+        >
+          Clear All Scripts
         </button>
       </div>
     </div>
