@@ -4,10 +4,22 @@
 const domain = new URL(window.location.href).hostname;
 let styleElement = null;
 
+function normalizeSelectors(rawSelectors) {
+  return (rawSelectors || []).map((entry) => {
+    if (typeof entry === 'string') {
+      return { selector: entry, enabled: true };
+    }
+    return {
+      selector: entry.selector,
+      enabled: entry.enabled !== false,
+    };
+  });
+}
+
 // Initialize hiding on page load
 function initializeHiding() {
   chrome.storage.local.get([domain], function (result) {
-    const selectors = result[domain] || [];
+    const selectors = normalizeSelectors(result[domain] || []);
     applyHiding(selectors);
   });
 }
@@ -19,7 +31,11 @@ function applyHiding(selectors) {
     styleElement.remove();
   }
 
-  if (selectors.length === 0) {
+  const activeSelectors = selectors
+    .filter((entry) => entry.enabled && entry.selector)
+    .map((entry) => entry.selector);
+
+  if (activeSelectors.length === 0) {
     return;
   }
 
@@ -28,7 +44,7 @@ function applyHiding(selectors) {
   styleElement.id = 'hide-elements-style';
   styleElement.type = 'text/css';
 
-  const css = selectors
+  const css = activeSelectors
     .map((selector) => {
       return `${selector} { display: none !important; }`;
     })
@@ -54,9 +70,17 @@ function applyHiding(selectors) {
 // Listen for messages from popup
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.action === 'applyHiding') {
-    applyHiding(request.selectors);
+    applyHiding(normalizeSelectors(request.selectors || []));
     sendResponse({ status: 'applied' });
   }
+});
+
+// Keep page in sync when storage changes (works even if popup messaging fails).
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName !== 'local' || !changes[domain]) {
+    return;
+  }
+  applyHiding(normalizeSelectors(changes[domain].newValue || []));
 });
 
 // Initialize when DOM is ready
